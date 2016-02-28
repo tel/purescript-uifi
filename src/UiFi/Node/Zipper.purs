@@ -1,7 +1,7 @@
 
 module UiFi.Node.Zipper where
 
-import UiFi.Node (Node (Node, Text), NodeData)
+import UiFi.Node (Node (Node, Text), NodeData ())
 import Data.List (List (Nil, Cons), reverse)
 import Prelude ((++))
 import Data.Maybe (Maybe (Nothing, Just))

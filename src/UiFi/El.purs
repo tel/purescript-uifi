@@ -3,13 +3,13 @@ module UiFi.El where
 
 import Control.Monad.Eff (Eff ())
 import Data.Function (Fn1 (), runFn1, Fn2 (), runFn2, Fn3 (), runFn3)
-import Prelude (Unit (), unit, map, return, bind)
+import Data.List (List (Nil, Cons))
+import Data.List as List
+import Data.Maybe (Maybe (Just, Nothing))
+import Prelude (Unit (), unit, return, bind)
 import UiFi.Node (Node (Text, Node))
 import UiFi.Selector (Selector ())
 import UiFi.Selector as Selector
-import Data.List (List ())
-import Data.List as List
-import Data.Maybe (Maybe (Just, Nothing))
 
 -- | Type describing effects involving DOM elements (`El`s) in the page
 foreign import data DOM :: !
@@ -21,7 +21,8 @@ foreign import data El :: *
 -- | Recursively construct a live `El`ement value from a `Node` template
 ofNode :: Node -> El
 ofNode (Text s) = runFn1 makeTextEl s
-ofNode (Node dat children) = runFn2 makeNodeEl dat.tag (map ofNode children)
+ofNode (Node dat children) = 
+  runFn2 makeNodeEl dat.tag (\f -> consumeList children (\n -> f (ofNode n)))
 
 -- | Use a `Selector` to seek out an `El` in the current document
 select :: forall e . Selector -> Eff (dom :: DOM | e) (Maybe El)
@@ -52,7 +53,13 @@ foreign import makeTextEl
   :: Fn1 String El
 
 foreign import makeNodeEl 
-  :: Fn2 String (List El) El
+  :: Fn2 String ((El -> Unit) -> Unit) El
+
+consumeList :: forall a . List a -> (a -> Unit) -> Unit
+consumeList Nil f = unit
+consumeList (Cons a as) f =
+  case f a of
+    _unit -> consumeList as f
 
 foreign import select_
   :: forall e . Fn3 (El -> Maybe El) (Maybe El) String (Eff (dom :: DOM | e) (Maybe El))

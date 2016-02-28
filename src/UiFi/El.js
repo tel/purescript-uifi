@@ -7,11 +7,11 @@ exports.makeTextEl = function (text) {
   return document.createTextNode(text);
 }
 
-exports.makeNodeEl = function(tag, children) {
+exports.makeNodeEl = function(tag, forEachChild) {
   var element;
   element = document.createElement(tag);
 
-  children.forEach(function (child) {
+  forEachChild(function (child) {
     element.appendChild(child);
   });
 

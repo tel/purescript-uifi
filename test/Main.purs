@@ -1,9 +1,14 @@
 module Test.Main where
 
-import Prelude
-import Control.Monad.Eff
-import Control.Monad.Eff.Console
+import Prelude (Unit)
+import Control.Monad.Eff (Eff)
 
-main :: forall e. Eff (console :: CONSOLE | e) Unit
-main = do
-  log "You should add some tests."
+import Test.Unit (test, runTest, TIMER)
+import Test.Unit.Console (TESTOUTPUT)
+import Control.Monad.Aff.AVar (AVAR)
+import Test.Unit.Assert as Assert
+
+main :: forall e . Eff (timer :: TIMER, avar :: AVAR, testOutput :: TESTOUTPUT | e) Unit
+main = runTest do
+  test "system" do
+    Assert.assert "test system is totally broken" true
